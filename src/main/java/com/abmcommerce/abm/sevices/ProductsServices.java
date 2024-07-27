@@ -17,7 +17,6 @@ public class ProductsServices {
 
     @Autowired private ProductsRepository productsRepository;
 
-    @Autowired private ClientsRepository clientsRepository;
 
     public void saveProduct(Product product){
         productsRepository.save(product);
@@ -35,66 +34,5 @@ public class ProductsServices {
         productsRepository.deleteById(id);
     }
 
-    @Transactional
-    public void addToCart (Long clientId, Long productId) throws Exception {
-       Optional<Product> product = productsRepository.findById(productId);
-       if (!product.isPresent()) {
-           throw new Exception("Product not found with id:" + productId);
-       }
-       Optional<Client> client = clientsRepository.findById(clientId);
-        if (!client.isPresent()) {
-            throw new Exception("Client not found with id:" + clientId);
-        }
 
-        Product product1 = product.get();
-        Client  client1 = client.get();
-
-        client1.getCart().add(product1);
-
-        product1.setClient(client1);
-
-        clientsRepository.save(client1);
-        productsRepository.save(product1);
-
-        System.out.println("Product added to cart successfully");
-    }
-
-
-
-
-
-    @Transactional
-    public void removeFromCart(Long clientId, Long productId) throws Exception {
-        Optional<Product> productOptional = productsRepository.findById(productId);
-        if (!productOptional.isPresent()) {
-            throw new Exception("Product not found with id:" + productId);
-        }
-
-        Optional<Client> clientOptional = clientsRepository.findById(clientId);
-        if (!clientOptional.isPresent()) {
-            throw new Exception("Client not found with id:" + clientId);
-        }
-
-        Product product = productOptional.get();
-        Client client = clientOptional.get();
-
-        client.getCart().remove(product);
-
-        product.setClient(null);
-
-        clientsRepository.save(client);
-        productsRepository.save(product);
-
-        System.out.println("Product removed from cart successfully");
-    }
-
-    public List<Product> getClientCart(Long clientId) throws Exception {
-        Optional<Client> clientOptional = clientsRepository.findById(clientId);
-        if (!clientOptional.isPresent()) {
-            throw new Exception("Client not found with id:" + clientId);
-        }
-
-        Client client = clientOptional.get();
-        return client.getCart();
-    }
 }

@@ -3,6 +3,10 @@ package com.abmcommerce.abm.controllers;
 
 import com.abmcommerce.abm.entities.Product;
 import com.abmcommerce.abm.sevices.ProductsServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "api/v1/products")
+@Tag(name = "Products", description = "Endpoints for managing products in the system. Allows creating, updating, listing, retrieving details, and deleting products. Each product has attributes such as name, price, and stock.")
 public class ProductsControllers {
 
 
@@ -21,6 +26,11 @@ public class ProductsControllers {
 
 
     @PostMapping()
+    @Operation(summary = "Create a new product", description = "Adds a new product to the system and returns a confirmation message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product created successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<String> saveProduct(@RequestBody Product product) {
         try {
             service.saveProduct(product);
@@ -31,6 +41,12 @@ public class ProductsControllers {
     }
 
     @PutMapping()
+    @Operation(summary = "Update an existing product", description = "Updates details of an existing product and returns a confirmation message. Returns 404 if the product is not found.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<String> updateProduct(@RequestBody Product product) {
         try {
             Long id = product.getId();  /*Obtener el ID del cliente desde el cuerpo de la solicitud*/
@@ -54,6 +70,11 @@ public class ProductsControllers {
     }
 
     @GetMapping()
+    @Operation(summary = "List all products", description = "Retrieves a list of all products in the system.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of products retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public List<Product> readAllProduct() {
         try {
             return service.readProduct();
@@ -64,6 +85,12 @@ public class ProductsControllers {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a specific product", description = "Retrieves details of a specific product by ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product details retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Optional<Product> readOneProduct(@PathVariable("id")  Long id){
         try {
             return service.readOneProduct(id);
@@ -74,6 +101,11 @@ public class ProductsControllers {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a product", description = "Deletes a specific product by ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<String> destroyOneProduct(@PathVariable("id") Long id) {
         try {
             service.destroyOneProduct(id);
@@ -83,34 +115,7 @@ public class ProductsControllers {
             throw new RuntimeException("DELETE PRODUCT ERROR");
         }
     }
-
-
-    @PostMapping("/{clientId}/add/{productId}")
-    public ResponseEntity<String> addToCart(@PathVariable Long clientId, @PathVariable Long productId) {
-        try {
-           service.addToCart(clientId, productId);
-            return ResponseEntity.ok("Added successfully");
-        } catch (Exception exception) {
-            System.out.println(exception);
-            throw new RuntimeException("ADD TO CART ERROR" , exception);
-        }
-    }
-
-    @DeleteMapping("/{clientId}/remove/{productId}")
-    public ResponseEntity<String> removeFromCart(@PathVariable Long clientId, @PathVariable Long productId) {
-        try {
-            service.removeFromCart(clientId, productId);
-            return ResponseEntity.ok("Product removed from cart successfully");
-        } catch (Exception exception) {
-            System.out.println(exception);
-            throw new RuntimeException("REMOVE FROM CART ERROR: " + exception.getMessage());
-        }
-    }
-
-    @GetMapping("/clients/{clientId}/cart")
-    public List<Product> getClientCart(@PathVariable Long clientId) throws Exception {
-        return service.getClientCart(clientId);
-    }
+    
 
 
 
